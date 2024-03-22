@@ -38,20 +38,25 @@ public partial class node_2d : Node2D
 			movement = Direction.Right;
 			bodyXPos = new List<int>();
 			bodyYPos = new List<int>();
+			GenerateBerry();
 			time = 0;
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
-	{
+	{	if(endGame) 
+		{
+			QueueRedraw();
+			return;
+		}
 		time += delta;
 		InputHandler();
 		if(time < GameSpeed) return;
 		
 		lastMovement = movement;
 		UpdateSnakePosition(ref head, ref bodyXPos, ref bodyYPos, movement);
-		QueueRedraw();	
-		
+		QueueRedraw();
+		CheckGameOver();
 		
 		time = 0;
 	}
@@ -59,12 +64,19 @@ public partial class node_2d : Node2D
 	public override void _Draw()
 	{
 		var viewport = GetViewportRect();
-		
 		DrawRect(viewport, Colors.Black);
-		
 		DrawBorders(ScreenWidth, ScreenHeight);
-				
 		DrawPixelInConsole(head.XPos, head.YPos, head.PixelColor);
+		DrawPixelInConsole(berry.XPos, berry.YPos, berry.PixelColor);
+		GD.Print(bodyYPos.Count);
+		for(int i = 0; i < bodyYPos.Count; i++ ){
+			DrawPixelInConsole(bodyXPos[i], bodyYPos[i], Colors.Green);
+		}
+		
+		if(endGame){
+			DrawString(ThemeDB.FallbackFont, new Vector2(ScreenWidth/8, ScreenHeight/2), $"GAME OVER\n score: {score}",
+			   HorizontalAlignment.Center, 500, 50);
+		}
 	}
 	
 	
@@ -109,24 +121,51 @@ public partial class node_2d : Node2D
 					break;
 			}
 
-/*
+
 			if (berry.XPos == head.XPos && berry.YPos == head.YPos)
 			{
 				score++;
 				CheckGameWin();
 				GenerateBerry();
 			}
-			*/
+			if (bodyXPos.Count > score){
+				bodyXPos.RemoveAt(0);
+				bodyYPos.RemoveAt(0);
+				}
+		}
+		
+		private void GenerateBerry()
+		{
+			bool isBerryOnSnake = true;
+			while (isBerryOnSnake)
+			{
+				berry.XPos = randomNum.Next(11, ScreenWidth - 11);
+				berry.YPos = randomNum.Next(11, ScreenHeight - 11);
+				if(berry.XPos % 10 != 0){
+					int overflow = berry.XPos % 10;
+					berry.XPos -= overflow;
+				}
+				if(berry.YPos % 10 != 0){
+					int overflow = berry.YPos % 10;
+					berry.YPos -= overflow;
+				}
 
-/*
-			if (bodyXPos.Count <= score)
-				return;
+				isBerryOnSnake = false;
+				if (berry.XPos == head.XPos && berry.YPos == head.YPos)
+				{
+					isBerryOnSnake = true;
+					continue;
+				}
 
-			Console.SetCursorPosition(bodyXPos[0], bodyYPos[0]);
-			Console.Write(" ");
-			bodyXPos.RemoveAt(0);
-			bodyYPos.RemoveAt(0);
-			*/
+				for (int i = 0; i < bodyXPos.Count; i++)
+				{
+					if (berry.XPos == bodyXPos[i] && berry.YPos == bodyYPos[i])
+					{
+						isBerryOnSnake = true;
+						break;
+					}
+				}
+			}
 		}
 		
 		private void DrawBorders(int width, int height)
@@ -139,6 +178,35 @@ public partial class node_2d : Node2D
 		DrawRect(rightBorder, Colors.White);
 		var bottomBorder = new Rect2(0, width, height + 10, 10);
 		DrawRect(bottomBorder, Colors.White);
+		}
+
+
+		private void CheckGameOver()
+		{
+			// Snake crash into wall
+			if (head.XPos == ScreenWidth - 10 || head.XPos == 10 || head.YPos == ScreenHeight - 10 || head.YPos == 10)
+			{
+				endGame = true;
+				return;
+			}
+
+			// Snake crash into himself
+			for (var i = 0; i < bodyXPos.Count; i++)
+			{
+				if (bodyXPos[i] == head.XPos && bodyYPos[i] == head.YPos)
+				{
+					endGame = true;
+					return;
+				}
+			}
+		}
+
+		private void CheckGameWin()
+		{
+			int maxBerriesGenerated = (ScreenWidth - 20) * (ScreenHeight - 20) - (score + 1);
+			if (maxBerriesGenerated != 0) return;
+
+			endGame = true;
 		}
 
 	private void DrawPixelInConsole(int xPos, int yPos, Color pixelColor)
