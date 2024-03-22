@@ -50,7 +50,7 @@ public partial class node_2d : Node2D
 			return;
 		}
 		time += delta;
-		InputHandler();
+		//InputHandler();
 		if(time >= GameSpeed){ 
 		
 		lastMovement = movement;
@@ -81,21 +81,21 @@ public partial class node_2d : Node2D
 	}
 	
 	
-		private void InputHandler()
+		public override void _Input(InputEvent @event)
 		{
-			if (Input.IsActionPressed("up") && lastMovement != Direction.Down) {
+			if (@event.IsActionPressed("up") && lastMovement != Direction.Down) {
 				movement = Direction.Up;
 			}
 
-			if (Input.IsActionPressed("down") && lastMovement != Direction.Up) {
+			if (@event.IsActionPressed("down") && lastMovement != Direction.Up) {
 				movement = Direction.Down;
 			}
 
-			if (Input.IsActionPressed("left") && lastMovement != Direction.Right) {
+			if (@event.IsActionPressed("left") && lastMovement != Direction.Right) {
 				movement = Direction.Left;
 			}
 
-			if (Input.IsActionPressed("right") && lastMovement != Direction.Left) {
+			if (@event.IsActionPressed("right") && lastMovement != Direction.Left) {
 				movement = Direction.Right;
 			}
 		}
