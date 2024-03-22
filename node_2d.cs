@@ -62,15 +62,8 @@ public partial class node_2d : Node2D
 		
 		DrawRect(viewport, Colors.Black);
 		
-		var leftBorder = new Rect2(0, 0, 10, ScreenWidth);
-		DrawRect(leftBorder, Colors.White);
-		var topBorder = new Rect2(0, 0, ScreenHeight, 10);
-		DrawRect(topBorder, Colors.White);
-		var rightBorder = new Rect2(ScreenHeight, 0, 10, ScreenWidth);
-		DrawRect(rightBorder, Colors.White);
-		var bottomBorder = new Rect2(0, ScreenWidth, ScreenHeight + 10, 10);
-		DrawRect(bottomBorder, Colors.White);
-		
+		DrawBorders(ScreenWidth, ScreenHeight);
+				
 		DrawPixelInConsole(head.XPos, head.YPos, head.PixelColor);
 	}
 	
@@ -134,6 +127,18 @@ public partial class node_2d : Node2D
 			bodyXPos.RemoveAt(0);
 			bodyYPos.RemoveAt(0);
 			*/
+		}
+		
+		private void DrawBorders(int width, int height)
+		{
+		var leftBorder = new Rect2(0, 0, 10, width);
+		DrawRect(leftBorder, Colors.White);
+		var topBorder = new Rect2(0, 0, height, 10);
+		DrawRect(topBorder, Colors.White);
+		var rightBorder = new Rect2(height, 0, 10, width);
+		DrawRect(rightBorder, Colors.White);
+		var bottomBorder = new Rect2(0, width, height + 10, 10);
+		DrawRect(bottomBorder, Colors.White);
 		}
 
 	private void DrawPixelInConsole(int xPos, int yPos, Color pixelColor)
