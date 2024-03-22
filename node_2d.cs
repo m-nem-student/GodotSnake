@@ -51,7 +51,7 @@ public partial class node_2d : Node2D
 		}
 		time += delta;
 		InputHandler();
-		if(time < GameSpeed) return;
+		if(time >= GameSpeed){ 
 		
 		lastMovement = movement;
 		UpdateSnakePosition(ref head, ref bodyXPos, ref bodyYPos, movement);
@@ -59,6 +59,7 @@ public partial class node_2d : Node2D
 		CheckGameOver();
 		
 		time = 0;
+		}
 	}
 	
 	public override void _Draw()
