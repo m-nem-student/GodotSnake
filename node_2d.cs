@@ -6,7 +6,8 @@ public partial class node_2d : Node2D
 {
 	private const int ScreenHeight = 640;
 	private const int ScreenWidth = 640;
-	private const double GameSpeed = 0.5;
+	[Export]
+	private double GameSpeed = 0.5;
 	
 	private int score;
 	private bool endGame;
@@ -44,20 +45,17 @@ public partial class node_2d : Node2D
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
-	{	if(endGame) 
-		{
-			QueueRedraw();
-			return;
-		}
-		time += delta;
-		//InputHandler();
+	{	time += delta;
 		if(time >= GameSpeed){ 
-		
+			if(endGame) 
+			{
+				QueueRedraw();
+				return;
+			}
 		lastMovement = movement;
 		UpdateSnakePosition(ref head, ref bodyXPos, ref bodyYPos, movement);
 		QueueRedraw();
 		CheckGameOver();
-		
 		time = 0;
 		}
 	}
@@ -70,10 +68,9 @@ public partial class node_2d : Node2D
 		DrawPixelInConsole(head.XPos, head.YPos, head.PixelColor);
 		DrawPixelInConsole(berry.XPos, berry.YPos, berry.PixelColor);
 		GD.Print(bodyYPos.Count);
-		for(int i = 0; i < bodyYPos.Count; i++ ){
-			DrawPixelInConsole(bodyXPos[i], bodyYPos[i], Colors.Green);
-		}
-		
+		DrawSnake(bodyXPos, bodyYPos, Colors.Green);
+		DrawString(ThemeDB.FallbackFont, new Vector2(10, 25), $"score: {score}",
+			   HorizontalAlignment.Center, 100, 15);
 		if(endGame){
 			DrawString(ThemeDB.FallbackFont, new Vector2(ScreenWidth/8, ScreenHeight/2), $"GAME OVER\n score: {score}",
 			   HorizontalAlignment.Center, 500, 50);
@@ -171,14 +168,17 @@ public partial class node_2d : Node2D
 		
 		private void DrawBorders(int width, int height)
 		{
-		var leftBorder = new Rect2(0, 0, 10, width);
-		DrawRect(leftBorder, Colors.White);
-		var topBorder = new Rect2(0, 0, height, 10);
-		DrawRect(topBorder, Colors.White);
-		var rightBorder = new Rect2(height, 0, 10, width);
-		DrawRect(rightBorder, Colors.White);
-		var bottomBorder = new Rect2(0, width, height + 10, 10);
-		DrawRect(bottomBorder, Colors.White);
+		var Border = new Rect2(0, 0, height + 10, width + 10);
+		DrawRect(Border, Colors.White, false, 20.0f);
+		var Shadow = new Rect2(9, 9, height - 6, width - 6);
+		DrawRect(Shadow, Colors.Gray, false, 5.0f);
+		}
+		
+		private void DrawSnake(List<int> bodyXPos, List<int> bodyYPos, Color pixelColor)
+		{
+			for(int i = 0; i < bodyYPos.Count; i++ ){
+			DrawPixelInConsole(bodyXPos[i], bodyYPos[i], pixelColor);
+			}
 		}
 
 
@@ -214,6 +214,8 @@ public partial class node_2d : Node2D
 	{
 		var point = new Rect2(xPos, yPos,  10, 10);
 		DrawRect(point, pixelColor);
+		var Shadow = new Rect2(xPos, yPos, 10, 10);
+		DrawRect(Shadow, Colors.DarkGray, false, 1.0f);
 	}
 	
 	private class Pixel
